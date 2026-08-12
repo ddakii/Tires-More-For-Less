@@ -64,7 +64,10 @@ export default function PublicLayout({ children }: { children?: ReactNode }) {
               {PHONE.display}
             </a>
             <Link to="/quote">
-              <Button variant="outline" className="border-white/20 bg-transparent text-white hover:bg-white/10">
+              <Button
+                variant="outline"
+                className="!border-white !bg-transparent !text-white hover:!bg-white/15"
+              >
                 Get a Tire Quote
               </Button>
             </Link>
@@ -110,7 +113,10 @@ export default function PublicLayout({ children }: { children?: ReactNode }) {
                 Call {PHONE.display}
               </a>
               <Link to="/quote">
-                <Button variant="outline" className="w-full border-white/20 bg-transparent text-white hover:bg-white/10">
+                <Button
+                  variant="outline"
+                  className="w-full !border-white !bg-transparent !text-white hover:!bg-white/15"
+                >
                   Get a Tire Quote
                 </Button>
               </Link>
@@ -164,7 +170,10 @@ export default function PublicLayout({ children }: { children?: ReactNode }) {
                 <Button>Book Service</Button>
               </Link>
               <Link to="/quote">
-                <Button variant="outline" className="border-white/20 bg-transparent text-white hover:bg-white/10">
+                <Button
+                  variant="outline"
+                  className="!border-white !bg-transparent !text-white hover:!bg-white/15"
+                >
                   Get a Quote
                 </Button>
               </Link>
