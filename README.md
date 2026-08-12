@@ -2,9 +2,16 @@
 
 Website + CRM demo for the Minneapolis tire shop at 1708 Central Ave NE.
 
-## Live demo
+## Live
 
-Deployed on Railway (see repository Actions / Railway dashboard after publish).
+- **Site:** https://web-production-4bc23.up.railway.app
+- **Admin CRM:** https://web-production-4bc23.up.railway.app/admin/login
+- **GitHub:** https://github.com/ddakii/Tires-More-For-Less
+
+### Demo login
+
+- Email: `admin@tiresmoreforless.demo`
+- Password: `Demo123!`
 
 ## Local setup
 
@@ -17,16 +24,11 @@ npm run dev
 - API: http://localhost:3001
 - Admin: http://localhost:5173/admin/login
 
-### Demo login
-
-- Email: `admin@tiresmoreforless.demo`
-- Password: `Demo123!`
-
 ## Railway
 
-This monorepo builds the Vite client and Express API, then serves both from one service.
+Monorepo builds the Vite client and Express API, then serves both from one service.
 
-Required environment variables:
+Environment variables:
 
-- `JWT_SECRET` — any long random string
-- `DATABASE_URL` — defaults to SQLite `file:./prod.db` (demo resets if the filesystem is ephemeral; seed runs automatically when empty)
+- `JWT_SECRET` — random secret string
+- `DATABASE_URL` — SQLite `file:./prod.db` (demo seeds automatically when empty)
