@@ -1,0 +1,22 @@
+{
+  "name": "tires-more-for-less",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tires & More For Less — website + CRM demo",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "build": "npm install --prefix client --include=dev && npm install --prefix server --include=dev && npm run build --prefix client && npm run prisma:generate --prefix server && npm run build --prefix server",
+    "start": "npm run start --prefix server",
+    "db:seed": "npm run db:seed --prefix server",
+    "db:push": "npm run db:push --prefix server",
+    "setup": "npm install && npm install --prefix client && npm install --prefix server && npm run db:push --prefix server && npm run db:seed --prefix server"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

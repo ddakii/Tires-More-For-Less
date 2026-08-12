@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+  --color-ink: #0f1720;
+  --color-steel: #123a6d;
+  --color-slate: #1e4a82;
+  --color-muted: #5c6b7a;
+  --color-fog: #e8eef5;
+  --color-paper: #f4f7fb;
+  /* Shop brand: royal blue + sign yellow */
+  --color-brand: #0b4f9c;
+  --color-brand-dark: #083a74;
+  --color-accent: #f5c518;
+  --color-accent-dark: #d4a70f;
+  --color-accent-soft: #fff8db;
+  --color-ok: #1f7a4d;
+  --color-warn: #b45309;
+  --color-danger: #b91c1c;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background: var(--color-paper);
+    margin: 0;
+  }
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-up {
+  animation: fade-up 0.6s ease-out both;
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }

@@ -1,0 +1,316 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("admin") // admin | staff
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BusinessSettings {
+  id               String  @id @default("default")
+  name             String
+  addressLine1     String
+  city             String
+  state            String
+  zip              String
+  country          String
+  phone            String
+  email            String?
+  taxRate          Float   @default(0.07875) // MN approx
+  invoicePrefix    String  @default("INV")
+  quotePrefix      String  @default("QTE")
+  servicePrefix    String  @default("SO")
+  appointmentPrefix String @default("APT")
+  hoursJson        String  // JSON string of hours
+  servicePricesJson String // JSON of default service prices
+  notifyEmail      Boolean @default(false)
+  notifySms        Boolean @default(false)
+  updatedAt        DateTime @updatedAt
+}
+
+model Customer {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  phone        String
+  email        String?
+  status       String   @default("Active") // Active | Inactive
+  notes        String?
+  portalToken  String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  vehicles      Vehicle[]
+  appointments  Appointment[]
+  quotes        Quote[]
+  quoteRequests QuoteRequest[]
+  serviceOrders ServiceOrder[]
+  invoices      Invoice[]
+  notesList     CustomerNote[]
+  communications Communication[]
+  notifications Notification[]
+}
+
+model Vehicle {
+  id           String   @id @default(cuid())
+  customerId   String
+  year         Int
+  make         String
+  model        String
+  trim         String?
+  vin          String?
+  licensePlate String?
+  tireSize     String?
+  mileage      Int?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customer      Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  appointments  Appointment[]
+  quotes        Quote[]
+  quoteRequests QuoteRequest[]
+  serviceOrders ServiceOrder[]
+  invoices      Invoice[]
+}
+
+model Tire {
+  id          String   @id @default(cuid())
+  brand       String
+  model       String
+  width       Int
+  aspectRatio Int
+  diameter    Int
+  size        String // e.g. 225/65R17
+  season      String // All-Season | Winter | Summer | All-Terrain
+  type        String // New | Used
+  loadIndex   String?
+  speedRating String?
+  cost        Float
+  price       Float
+  quantity    Int      @default(0)
+  supplier    String?
+  sku         String   @unique
+  warranty    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  quoteItems        QuoteItem[]
+  serviceOrderItems ServiceOrderItem[]
+  invoiceItems      InvoiceItem[]
+}
+
+model Appointment {
+  id            String   @id @default(cuid())
+  number        String   @unique
+  customerId    String
+  vehicleId     String?
+  serviceType   String
+  date          String // YYYY-MM-DD
+  time          String // HH:MM
+  status        String   @default("Requested") // Requested|Confirmed|Checked In|In Service|Completed|Cancelled|No Show
+  notes         String?
+  tireSize      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicle      Vehicle?      @relation(fields: [vehicleId], references: [id])
+  serviceOrder ServiceOrder?
+}
+
+model QuoteRequest {
+  id              String   @id @default(cuid())
+  customerId      String?
+  vehicleId       String?
+  name            String
+  phone           String
+  email           String?
+  vehicleInfo     String?
+  tireSize        String?
+  quantity        Int      @default(4)
+  preference      String? // New | Used | Either
+  preferredBrand  String?
+  budget          String?
+  notes           String?
+  status          String   @default("New") // New | Reviewed | Quoted | Closed
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customer Customer? @relation(fields: [customerId], references: [id])
+  vehicle  Vehicle?  @relation(fields: [vehicleId], references: [id])
+  quote    Quote?
+}
+
+model Quote {
+  id             String   @id @default(cuid())
+  number         String   @unique
+  customerId     String
+  vehicleId      String?
+  quoteRequestId String?  @unique
+  status         String   @default("Draft") // Draft|Sent|Accepted|Declined|Expired|Converted
+  discount       Float    @default(0)
+  taxRate        Float
+  notes          String?
+  validUntil     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicle      Vehicle?      @relation(fields: [vehicleId], references: [id])
+  quoteRequest QuoteRequest? @relation(fields: [quoteRequestId], references: [id])
+  items        QuoteItem[]
+  serviceOrder ServiceOrder?
+}
+
+model QuoteItem {
+  id          String  @id @default(cuid())
+  quoteId     String
+  tireId      String?
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Float
+  itemType    String  @default("service") // tire | service
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  tire  Tire? @relation(fields: [tireId], references: [id])
+}
+
+model ServiceOrder {
+  id                String   @id @default(cuid())
+  number            String   @unique
+  customerId        String
+  vehicleId         String?
+  appointmentId     String?  @unique
+  quoteId           String?  @unique
+  mileage           Int?
+  complaint         String?
+  inspectionNotes   String?
+  technicianNotes   String?
+  recommendedServices String?
+  status            String   @default("Open") // Open|In Progress|Completed|Cancelled|Invoiced
+  discount          Float    @default(0)
+  taxRate           Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  customer    Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicle     Vehicle?           @relation(fields: [vehicleId], references: [id])
+  appointment Appointment?       @relation(fields: [appointmentId], references: [id])
+  quote       Quote?             @relation(fields: [quoteId], references: [id])
+  items       ServiceOrderItem[]
+  invoice     Invoice?
+}
+
+model ServiceOrderItem {
+  id             String  @id @default(cuid())
+  serviceOrderId String
+  tireId         String?
+  description    String
+  quantity       Int     @default(1)
+  unitPrice      Float
+  cost           Float   @default(0)
+  itemType       String  @default("service") // tire | service
+  inventoryDeducted Boolean @default(false)
+
+  serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
+  tire         Tire?        @relation(fields: [tireId], references: [id])
+}
+
+model Invoice {
+  id             String   @id @default(cuid())
+  number         String   @unique
+  customerId     String
+  vehicleId      String?
+  serviceOrderId String?  @unique
+  status         String   @default("Unpaid") // Unpaid|Partially Paid|Paid|Refunded
+  discount       Float    @default(0)
+  taxRate        Float
+  notes          String?
+  issuedAt       DateTime @default(now())
+  paidAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicle      Vehicle?      @relation(fields: [vehicleId], references: [id])
+  serviceOrder ServiceOrder? @relation(fields: [serviceOrderId], references: [id])
+  items        InvoiceItem[]
+  payments     Payment[]
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  tireId      String?
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Float
+  itemType    String  @default("service")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  tire    Tire?   @relation(fields: [tireId], references: [id])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  invoiceId String
+  amount    Float
+  method    String   @default("Cash") // Cash|Card|Check|Other
+  notes     String?
+  paidAt    DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model CustomerNote {
+  id         String   @id @default(cuid())
+  customerId String
+  content    String
+  createdBy  String?
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Communication {
+  id         String   @id @default(cuid())
+  customerId String
+  channel    String // phone|email|sms|in-person|note
+  direction  String // inbound|outbound
+  subject    String?
+  body       String
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  customerId String?
+  type       String // Appointment Requested|Appointment Confirmed|Quote Ready|Vehicle Ready|Invoice Created
+  title      String
+  message    String
+  channel    String   @default("in-app") // in-app|email|sms
+  status     String   @default("Queued") // Queued|Sent|Failed|Mock
+  createdAt  DateTime @default(now())
+
+  customer Customer? @relation(fields: [customerId], references: [id])
+}
+
+model Counter {
+  id    String @id
+  value Int    @default(0)
+}
